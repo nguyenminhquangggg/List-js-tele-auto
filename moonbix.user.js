@@ -67,15 +67,15 @@ try {
 
     function clickTaskTab() {
         const taskTab = Array.from(document.querySelectorAll('.components_container__tab__1mbN9')).find(tab => {
-            return tab.innerText.includes('Nhiệm vụ');
+            return tab.innerText.includes('Task');
         });
 
         if (taskTab) {
-            console.log('Tab Nhiệm vụ được tìm thấy, đang click...');
+            console.log('Found Task,  clicking...');
             taskTab.click();
             return true;
         } else {
-            console.log('Không tìm thấy tab Nhiệm vụ.');
+            console.log('Task Not Found.');
             return false;
         }
     }
@@ -86,8 +86,8 @@ try {
         for (const task of tasks) {
             const checkIcon = task.querySelector('img[src*="check.png"]');
             if (!checkIcon) {
-                console.log('Nhiệm vụ chưa hoàn thành được tìm thấy, đang click...');
-                task.click(); // Thực hiện click vào nhiệm vụ chưa hoàn thành
+                console.log('ound Task,  clicking.....');
+                task.click(); 
                 foundIncompleteTask = true;
                 break;
             }
@@ -98,16 +98,16 @@ try {
     function clickContinueButton() {
         const continueButton = document.querySelector('.DailyLogin_login__button__15aOK');
         if (continueButton) {
-            console.log('Nút "Tiếp tục" được tìm thấy, đang click...');
-            continueButton.click(); // Thực hiện click vào nút "Tiếp tục"
+            console.log('Click Continue');
+            continueButton.click(); 
             return true;
         } else {
-            console.log('Không tìm thấy nút "Tiếp tục".');
+            console.log('Continue Button Not Found.');
             return false;
         }
     }
 
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         if (document.readyState === 'complete') {
             // Thực hiện hàm click
             let clicked = false;
@@ -119,7 +119,7 @@ try {
                         const found = clickIncompleteTask();
                         if (!found) {
                             clearInterval(taskInterval);
-                            console.log('Không tìm thấy nhiệm vụ chưa hoàn thành nào nữa.');
+                            console.log('Fulltask complete.');
                         }
                     }, 1000);
                 }

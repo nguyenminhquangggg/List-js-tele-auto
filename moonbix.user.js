@@ -5,10 +5,10 @@
 // @author       0xf5
 // @match        https://www.binance.com/*
 // @grant        none
-// @icon         https://github.com/nguyenminhquangggg/List-js-tele-auto/raw/main/blum.png
-// @updateURL    https://github.com/nguyenminhquangggg/List-js-tele-auto/raw/main/moonbix-autoclicker.user.js
-// @downloadURL  https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/moonbix-autoclicker.user.js
-// @homepage     https://github.com/nguyenminhquangggg/List-js-tele-auto/raw/main/blum.png
+// @icon         https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/logo.jpg
+// @updateURL    https://github.com/nguyenminhquangggg/List-js-tele-auto/raw/main/moonbix.user.js
+// @downloadURL  https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/moonbix.user.js
+// @homepage     https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/logo.jpg
 // ==/UserScript==
 
 try {

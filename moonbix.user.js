@@ -1,139 +1,139 @@
 // ==UserScript==
 // @name         Moonbix Autoclicker
-// @version      1.9
-// @namespace    Violentmonkey Scripts
-// @author       0xf5
+// @namespace    http://tampermonkey.net/
+// @version      1
+// @description  Auto chơi game
 // @match        https://www.binance.com/*
-// @grant        none
-// @icon         https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/logo.jpg
-// @updateURL    https://github.com/nguyenminhquangggg/List-js-tele-auto/raw/main/moonbix.user.js
-// @downloadURL  https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/moonbix.user.js
-// @homepage     https://github.com/nguyenminhquangggg/List-js-tele-auto/blob/main/logo.jpg
+// @grant        GM_log
+// @grant        unsafeWindow
 // ==/UserScript==
 
-try {
+(function() {
+    'use strict';
 
-    function simulateClick(element) {
-        const event = new MouseEvent('mousedown', {
-            'view': window,
-            'bubbles': true,
-            'cancelable': true,
-            clientX: 150,
-            clientY: 150
-        });
-
-        element.dispatchEvent(event);
+    function log(message) {
+        GM_log(`[Game Automation]: ${message}`);
+        console.log(`[Game Automation]: ${message}`);
     }
+
+    log('Bot starting...');
+
+    function Clickxy(element) {
+        if (!element) return;
+        const rect = element.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        ['mousedown', 'mouseup', 'click'].forEach(eventType => {
+            const clickEvent = new MouseEvent(eventType, {
+                view: unsafeWindow,
+                bubbles: true,
+                cancelable: true,
+                clientX: x,
+                clientY: y
+            });
+            element.dispatchEvent(clickEvent);
+        });
+    }
+
+    function startGame() {
+        log('Attempting to start the game');
+        const startButton = document.querySelector('.Game_entry__playBtn__1Gi2c');
+        if (startButton) {
+            log('Đã tìm thấy nút bắt đầu, nhấp để bắt đầu trò chơi...');
+            Clickxy(startButton);
+            setTimeout(playGame, 5000);
+        } else {
+            log('Không tìm thấy nút bắt đầu trò chơi');
+        }
+    }
+
+    let playInterval;
 
     function playGame() {
-        setTimeout(() => {
-            const canvas = document.querySelector('.canvas-wrapper canvas');
-            if (canvas) {
-                const interval = setInterval(() => {
-                    simulateClick(canvas);
-                }, getNewGameDelay());
-            } else {
-                console.log('Canvas not found.');
+        const canvas = document.querySelector('.canvas-wrapper canvas');
+        if (canvas) {
+            if (!playInterval) {
+                playInterval = setInterval(() => {
+                    if (document.querySelector('.canvas-wrapper canvas')) {
+                        Clickxy(canvas);
+                    } else {
+                        clearInterval(playInterval);
+                        playInterval = null;
+                    }
+                }, 1000);
             }
-        }, 2000);
-    }
-
-    function clickElement(element) {
-        element.onClick(element);
-        element.isExplosion = true;
-        element.addedAt = performance.now();
-    }
-
-    function getNewGameDelay() {
-        return Math.floor(Math.random() * (3000 - 1000 + 1) + 1000);
-    }
-
-    function checkAndClickPlayButton() {
-        const playButton = document.querySelector('#__APP > div > div > div > div:nth-child(3) > button, .Game_entry__playBtn__1Gi2c');
-        if (playButton && playButton.textContent.includes('Play')) {
-            setTimeout(() => {
-                playButton.click();
-                playGame();
-            }, getNewGameDelay());
+        } else {
+            log('Canvas not found. Selector: .canvas-wrapper canvas');
         }
     }
 
-    function continuousPlayButtonCheck() {
-        checkAndClickPlayButton();
-        setTimeout(continuousPlayButtonCheck, 1000);
+    function findButtonByText(textArray) {
+        const buttons = document.querySelectorAll('button');
+        for (let button of buttons) {
+            const buttonText = button.textContent.trim();
+            if (textArray.some(text => buttonText.startsWith(text))) {
+                return button;
+            }
+        }
+        return null;
     }
 
-    continuousPlayButtonCheck();
+    function checkScoreAndContinue() {
+        const scoreElement = document.querySelector('.bn-flex.relative.flex-col.items-center');
+        if (scoreElement) {
+            const scoreText = scoreElement.querySelector('.text-5xl.font-semibold.text-white');
+            if (scoreText) {
+                const score = scoreText.textContent;
+                log(`Bạn kiếm được ${score} điểm`);
 
-    function clickTaskTab() {
-        const taskTab = Array.from(document.querySelectorAll('.components_container__tab__1mbN9')).find(tab => {
-            return tab.innerText.includes('Task');
+                setTimeout(() => {
+                    let continueButton = findButtonByText(['Chơi lại', 'Play Again']);
+                    if (continueButton) {
+                        log('Tìm thấy nút "Chơi lại", nhấp để tiếp tục...');
+                        Clickxy(continueButton);
+                    } else {
+                        continueButton = findButtonByText(['Tiếp tục', 'Continue']);
+                        if (continueButton) {
+                            log('Tìm thấy nút "Tiếp tục", nhấp để tiếp tục...');
+                            Clickxy(continueButton);
+                        } else {
+                            log('Không tìm thấy nút để tiếp tục chơi');
+                        }
+                    }
+                }, 3000);
+            }
+        }
+    }
+
+    function monitorDOM() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                    const startButton = document.querySelector('.Game_entry__playBtn__1Gi2c');
+                    if (startButton) {
+                        log('Bắt đầu bắt đầu trò chơi...');
+                        startGame();
+                    }
+                    const canvas = document.querySelector('.canvas-wrapper canvas');
+                    if (canvas) {
+                        log('Đang chuẩn bị chơi...');
+                        playGame();
+                    }
+                    checkScoreAndContinue();
+                }
+            });
         });
 
-        if (taskTab) {
-            console.log('Found Task,  clicking...');
-            taskTab.click();
-            return true;
-        } else {
-            console.log('Task Not Found.');
-            return false;
-        }
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        log('DOM monitoring started');
     }
 
-    function clickIncompleteTask() {
-        const tasks = document.querySelectorAll('.Tasks_taskItem__16PwK');
-        let foundIncompleteTask = false;
-        for (const task of tasks) {
-            const checkIcon = task.querySelector('img[src*="check.png"]');
-            if (!checkIcon) {
-                console.log('ound Task,  clicking.....');
-                task.click(); 
-                foundIncompleteTask = true;
-                break;
-            }
-        }
-        return foundIncompleteTask;
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', monitorDOM);
+    } else {
+        monitorDOM();
     }
-
-    function clickContinueButton() {
-        const continueButton = document.querySelector('.DailyLogin_login__button__15aOK');
-        if (continueButton) {
-            console.log('Click Continue');
-            continueButton.click(); 
-            return true;
-        } else {
-            console.log('Continue Button Not Found.');
-            return false;
-        }
-    }
-
-    window.addEventListener('load', function () {
-        if (document.readyState === 'complete') {
-            // Thực hiện hàm click
-            let clicked = false;
-            const interval = setInterval(() => {
-                clicked = clickTaskTab();
-                if (clicked) {
-                    clearInterval(interval);
-                    const taskInterval = setInterval(() => {
-                        const found = clickIncompleteTask();
-                        if (!found) {
-                            clearInterval(taskInterval);
-                            console.log('Fulltask complete.');
-                        }
-                    }, 1000);
-                }
-            }, 1000);
-
-            const continueInterval = setInterval(() => {
-                const clickedContinue = clickContinueButton();
-                if (clickedContinue) {
-                    clearInterval(continueInterval);
-                }
-            }, 1000);
-        }
-    });
-
-} catch (e) {
-    console.log(e);
-}
+})();
